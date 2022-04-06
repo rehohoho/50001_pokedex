@@ -45,8 +45,10 @@ public class MainActivity extends AppCompatActivity {
     final String PREF_FILE = "mainsharedpref";
     final int REQUEST_CODE_IMAGE = 1000;
 
-    SharedPreferences mPreferences;
+    final static String KEY_PATH = "Image";
+    final static String KEY_NAME = "Name";
 
+    SharedPreferences mPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +81,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 Intent intent = new Intent(MainActivity.this, DataEntry.class);
                 startActivityForResult(intent, REQUEST_CODE_IMAGE);
-
             }
         });
     }
@@ -121,9 +121,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if( requestCode == REQUEST_CODE_IMAGE && resultCode == Activity.RESULT_OK){
+        if (requestCode == REQUEST_CODE_IMAGE && resultCode == Activity.RESULT_OK){
+            String path = data.getStringExtra(KEY_PATH);
+            String name = data.getStringExtra(KEY_NAME);
+            dataSource.addData(name, path);
+            imageViewAdded.setImageBitmap(dataSource.getImage(dataSource.getSize() - 1));
+            Toast.makeText(this, "Added image " + name, Toast.LENGTH_SHORT).show();
+            charaAdapter.notifyDataSetChanged();
         }
-
 
     }
 }
