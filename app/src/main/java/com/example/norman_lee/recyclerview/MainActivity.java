@@ -10,6 +10,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +28,16 @@ public class MainActivity extends AppCompatActivity {
     CharaAdapter charaAdapter;
     ImageView imageViewAdded;
 
+    private ArrayList<Integer> drawableIds = new ArrayList<>(Arrays.asList(
+            R.drawable.bulbasaur,
+            R.drawable.eevee,
+            R.drawable.gyrados,
+            R.drawable.pikachu,
+            R.drawable.psyduck,
+            R.drawable.snorlax,
+            R.drawable.spearow,
+            R.drawable.squirtle
+    ));
     DataSource dataSource;
 
     final String KEY_DATA = "data";
@@ -44,6 +56,13 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         //TODO 11.1 Get references to the widgets
+        recyclerView = findViewById(R.id.charaRecyclerView);
+        imageViewAdded = findViewById(R.id.imageViewAdded);
+        dataSource = Utils.firstLoadImages(this, drawableIds);
+
+        charaAdapter = new CharaAdapter(this, dataSource);
+        recyclerView.setAdapter(charaAdapter);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
         //TODO 12.7 Load the Json string from shared Preferences
         //TODO 12.8 Initialize your dataSource object with the Json string
