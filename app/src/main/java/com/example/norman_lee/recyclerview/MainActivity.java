@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     DataSource dataSource;
 
     final String KEY_DATA = "data";
-    final String LOGCAT = "RV";
+    final String LOGCAT = "MainActivity";
     final String PREF_FILE = "mainsharedpref";
     final int REQUEST_CODE_IMAGE = 1000;
 
@@ -60,21 +60,25 @@ public class MainActivity extends AppCompatActivity {
         //TODO 11.1 Get references to the widgets
         recyclerView = findViewById(R.id.charaRecyclerView);
         imageViewAdded = findViewById(R.id.imageViewAdded);
-        dataSource = Utils.firstLoadImages(this, drawableIds);
 
+        //TODO 12.7 Load the Json string from shared Preferences
+        mPreferences = getSharedPreferences(PREF_FILE, MODE_PRIVATE);
+        String json = mPreferences.getString(KEY_DATA, "");
+        //TODO 12.8 Initialize your dataSource object with the Json string
+        if (json == null) {
+            //TODO 11.2 Create your dataSource object by calling Utils.firstLoadImages
+            dataSource = Utils.firstLoadImages(this, drawableIds);
+        } else {
+            dataSource = new Gson().fromJson(json, DataSource.class);
+        }
+
+        //TODO 11.3 --> Go to CharaAdapter
+        //TODO 11.8 Complete the necessary code to initialize your RecyclerView
         charaAdapter = new CharaAdapter(this, dataSource);
         recyclerView.setAdapter(charaAdapter);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
-        //TODO 12.7 Load the Json string from shared Preferences
-        //TODO 12.8 Initialize your dataSource object with the Json string
-
-        //TODO 11.2 Create your dataSource object by calling Utils.firstLoadImages
-        //TODO 11.3 --> Go to CharaAdapter
-        //TODO 11.8 Complete the necessary code to initialize your RecyclerView
-
         //TODO 12.9 [OPTIONAL] Add code to delete a RecyclerView item upon swiping. See notes for the code.
-
 
         //TODO 12.1 Set up an Explicit Intent to DataEntry Activity with startActivityForResult (no coding)
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -91,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
+        mPreferences.edit()
+            .putString(KEY_DATA, new Gson().toJson(dataSource))
+            .apply();
     }
 
 
@@ -122,12 +129,16 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_IMAGE && resultCode == Activity.RESULT_OK){
-            String path = data.getStringExtra(KEY_PATH);
-            String name = data.getStringExtra(KEY_NAME);
-            dataSource.addData(name, path);
-            imageViewAdded.setImageBitmap(dataSource.getImage(dataSource.getSize() - 1));
-            Toast.makeText(this, "Added image " + name, Toast.LENGTH_SHORT).show();
-            charaAdapter.notifyDataSetChanged();
+            if (data != null) {
+                String path = data.getStringExtra(KEY_PATH);
+                String name = data.getStringExtra(KEY_NAME);
+                dataSource.addData(name, path);
+                imageViewAdded.setImageBitmap(dataSource.getImage(dataSource.getSize() - 1));
+                Toast.makeText(this, "Added image " + name, Toast.LENGTH_SHORT).show();
+                charaAdapter.notifyDataSetChanged();
+            } else {
+                Log.w(LOGCAT, "Unable to receive data");
+            }
         }
 
     }
